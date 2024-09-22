@@ -95,16 +95,19 @@ class TelegramScraper:
                         limit=BATCH_SIZE,
                     ):
 
-                        messages.append(message)
+                        messages.append(message.id)
                         await self.process_message(message, channel)
                         max_processed_id = message.id
 
-                        # async for comment_message in telegram_client.iter_messages(
-                        #     channel, reply_to=message.id
-                        # ):
+                        comments = []
+                        async for comment_message in self.telegram_client.iter_messages(
+                            channel, reply_to=message.id, limit=BATCH_SIZE
+                        ):
+                            comments.append(comment_message.id)
+                            await self.process_message(comment_message, channel)
 
-                        #     print(comment_message.text)
-                        #     await process_message(comment_message, channel)
+                        if not comments:
+                            break
 
                     logging.info(f"Processed a batch of {len(messages)} messages.")
                     if not messages:
