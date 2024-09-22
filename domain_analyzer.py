@@ -15,14 +15,24 @@ def extract_urls_and_domains(text):
     Returns:
         tuple: A list of extracted URLs and a list of corresponding domains.
     """
+    # url_regex = re.compile(
+    #     r"(https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s\)\]\,\*\>\<\{\}\|\\\^?#]{2,}|"
+    #     r"www\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s\)\]\,\*\>\<\{\}\|\\\^?#]{2,}|"
+    #     r"https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9]+\.[^\s\)\]\,\*\>\<\{\}\|\\\^?#]{2,}|"
+    #     r"www\.[a-zA-Z0-9]+\.[^\s\)\]\,\*\>\<\{\}\|\\\^?#]{2,}|"
+    #     r"(?:[a-zA-Z0-9-]+\.)+[a-zA-Z]{2,6})",
+    #     re.IGNORECASE,
+    # )
+
     url_regex = re.compile(
-        r"(https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s\)\]\,\*\>\<\{\}\|\\\^]{2,}|"
-        r"www\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s\)\]\,\*\>\<\{\}\|\\\^]{2,}|"
-        r"https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9]+\.[^\s\)\]\,\*\>\<\{\}\|\\\^]{2,}|"
-        r"www\.[a-zA-Z0-9]+\.[^\s\)\]\,\*\>\<\{\}\|\\\^]{2,}|"
+        r"(https?:\/\/(?:www\.)?[a-zA-Z0-9][a-zA-Z0-9-]*(?:\.[a-zA-Z0-9-]+)+[^\s\)\]\,\*\>\<\{\}\|\\\^?#]{2,}|"
+        r"www\.[a-zA-Z0-9][a-zA-Z0-9-]*(?:\.[a-zA-Z0-9-]+)+[^\s\)\]\,\*\>\<\{\}\|\\\^?#]{2,}|"
+        r"https?:\/\/(?:www\.)?[a-zA-Z0-9-]+(?:\.[a-zA-Z]{2,6})[^\s\)\]\,\*\>\<\{\}\|\\\^?#]{2,}|"
+        r"www\.[a-zA-Z0-9-]+(?:\.[a-zA-Z]{2,6})[^\s\)\]\,\*\>\<\{\}\|\\\^?#]{2,}|"
         r"(?:[a-zA-Z0-9-]+\.)+[a-zA-Z]{2,6})",
         re.IGNORECASE,
     )
+
     urls = re.findall(url_regex, text)
     domains = [tldextract.extract(url.lower()).registered_domain for url in urls]
 
