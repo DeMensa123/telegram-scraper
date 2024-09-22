@@ -2,15 +2,15 @@ import logging
 import asyncio
 from telethon import TelegramClient, errors
 from config import API_ID, API_HASH, PHONE, TELEGRAM_SESSION, BATCH_SIZE
-from app.mongo_client import insert_or_update_message, setup_mongo_indexes
 from app.utils import TelegramMessage
 from app.domain_analyzer import extract_urls_and_domains
-from app.mongo_client import collection
+from app.mongo_client import MongoClient
 
 
 class TelegramScraper:
-    def __init__(self):
+    def __init__(self, mongo_client: MongoClient):
         self.telegram_client = TelegramClient(TELEGRAM_SESSION, API_ID, API_HASH)
+        self.mongo_client = mongo_client
 
     async def connect(self):
         """Start the Telegram client and log in."""
@@ -33,7 +33,6 @@ class TelegramScraper:
 
         try:
             if message.text:
-
                 urls, domains = extract_urls_and_domains(message.text)
                 logging.info(f"Message: {message.text}")
                 logging.info(f"Extracted URLs: {urls}")
@@ -49,7 +48,7 @@ class TelegramScraper:
             else:
                 message_data = TelegramMessage(channel.title, message).to_dict()
 
-            insert_or_update_message(message_data)
+            self.mongo_client.insert_or_update_message(message_data)
 
         except Exception as e:
             logging.error(f"Error processing message {message.id}: {e}")
@@ -68,9 +67,8 @@ class TelegramScraper:
 
             # Concurrently fetch and process the comments for the message
             comments = []
+            if message.replies is not None and message.replies.replies > 0:
 
-            if message.replies.replies > 0:
-                print(message.replies.replies)
                 async for comment_message in self.telegram_client.iter_messages(
                     channel, reply_to=message.id, limit=BATCH_SIZE
                 ):
@@ -82,21 +80,7 @@ class TelegramScraper:
         except Exception as e:
             logging.error(f"Error processing message {message.id} or its comments: {e}")
 
-    def get_last_processed_timestamp(self, channel):
-        """
-        Retrieve the last processed timestamp for the given channel.
-
-        Args:
-            channel: the Telegram channel to scrape messages from.
-        """
-
-        last_message = collection.find_one(
-            {"channel_name": channel.title}, sort=[("timestamp", -1)]
-        )
-
-        return last_message["message_id"] if last_message else 0
-
-    async def scrape_messages(self, channel_url):
+    async def scrape_messages(self, channel_url: str):
         """
         Scrape messages in batches from the specified channel.
 
@@ -107,7 +91,9 @@ class TelegramScraper:
         while True:
             try:
                 channel = await self.telegram_client.get_entity(channel_url)
-                last_processed_id = self.get_last_processed_timestamp(channel)
+                last_processed_id = self.mongo_client.get_last_processed_timestamp(
+                    channel
+                )
                 max_processed_id = 0  # Set to 0 for scraping the newest message
 
                 while True:
@@ -140,7 +126,7 @@ class TelegramScraper:
 
                     await asyncio.sleep(1)
 
-                setup_mongo_indexes()
+                self.mongo_client.setup_mongo_indexes()
                 logging.info(
                     f"Finished scraping messages from {channel.title}: {channel_url}"
                 )
