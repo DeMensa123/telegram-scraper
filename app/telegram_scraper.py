@@ -28,7 +28,7 @@ class TelegramScraper:
 
         Args:
             message: The message object from Telegram.
-            channel: the Telegram channel to scrape messages from.
+            channel: The Telegram channel to scrape messages from.
         """
 
         try:
@@ -53,6 +53,34 @@ class TelegramScraper:
 
         except Exception as e:
             logging.error(f"Error processing message {message.id}: {e}")
+
+    async def process_message_and_comments(self, message, channel):
+        """
+        Process a message and scrape its comments concurrently.
+
+        Args:
+            message: The Telegram message to process.
+            channel: The Telegram to scrape messages from.
+        """
+        try:
+            # Process the main message
+            await self.process_message(message, channel)
+
+            # Concurrently fetch and process the comments for the message
+            comments = []
+
+            if message.replies.replies > 0:
+                print(message.replies.replies)
+                async for comment_message in self.telegram_client.iter_messages(
+                    channel, reply_to=message.id, limit=BATCH_SIZE
+                ):
+                    comments.append(comment_message)
+                    await self.process_message(comment_message, channel)
+
+            logging.info(f"Processed {len(comments)} comments for message {message.id}")
+
+        except Exception as e:
+            logging.error(f"Error processing message {message.id} or its comments: {e}")
 
     def get_last_processed_timestamp(self, channel):
         """
@@ -95,25 +123,22 @@ class TelegramScraper:
                         limit=BATCH_SIZE,
                     ):
 
-                        messages.append(message.id)
-                        await self.process_message(message, channel)
+                        messages.append(message)
                         max_processed_id = message.id
 
-                        comments = []
-                        async for comment_message in self.telegram_client.iter_messages(
-                            channel, reply_to=message.id, limit=BATCH_SIZE
-                        ):
-                            comments.append(comment_message.id)
-                            await self.process_message(comment_message, channel)
-
-                        if not comments:
-                            break
-
                     logging.info(f"Processed a batch of {len(messages)} messages.")
+
                     if not messages:
                         break
 
-                    await asyncio.sleep(2)
+                    await asyncio.gather(
+                        *[
+                            self.process_message_and_comments(message, channel)
+                            for message in messages
+                        ]
+                    )
+
+                    await asyncio.sleep(1)
 
                 setup_mongo_indexes()
                 logging.info(
