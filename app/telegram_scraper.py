@@ -99,7 +99,6 @@ class TelegramScraper:
                 while True:
 
                     messages = []
-                    print("last_processed_id : ", last_processed_id)
 
                     # Retrieve messages newer than the last processed message
                     async for message in self.telegram_client.iter_messages(

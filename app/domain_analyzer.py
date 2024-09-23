@@ -18,7 +18,7 @@ def extract_urls_and_domains(text: str) -> tuple:
     url_regex = re.compile(
         r"\b((?:https?:\/\/)?(?:www\.)?"  # Optionally matches the protocol part (http:// or https://) and www.
         r"(?!\-)(?!.*\-\-)(?:[a-zA-Z0-9-]+(?<!\-)\.)+[a-zA-Z]{2,3}"  # matches the domain name and the top level domain
-        r"(?:\/[^\/\s\"\>\<\|\\\@]*)*"  # optionally matches a path following the fomain
+        r"(?:\/[^\/\s\"\>\<\|\\\@\)\()]*)*"  # optionally matches a path following the fomain
         r"(?:[\?#][^\s]*)?)\b",  # optionally matches a query string
         re.IGNORECASE,
     )
