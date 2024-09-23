@@ -88,23 +88,24 @@ The project is organized into multiple files, separating concerns between Telegr
 ```bash
 telegram-scraper/
 │
-├── scraper.log                 # Logs file for error/debugging
-├── .env.example                # Environment variables example
-├── config.py                   # Configuration file for loading environment variables
-├── main.py                     # Main script to run the Telegram scraper
-├── requirements.txt            # Python dependencies
+├── .env.example                    # Environment variables example
+├── config.py                       # Configuration file for loading environment variables
+├── main.py                         # Main script to run the Telegram scraper
+├── requirements.txt                # Python dependencies
 ├── README.md                   
+├── telegram_data.messages.json     # Exported data from MongoDB               
 ├── app/
 │   ├── __init__.py
-│   ├── telegram_scraper.py     # Handles interaction with Telegram API
+│   ├── telegram_scraper.py         # Handles interaction with Telegram API
 │   ├── domain_analyzer.py          # Analyzing top domains and generating visualizations
-│   ├── mongo_client.py         # Handles MongoDB interactions and analysis
-│   └── utils.py                # Classes and logging setup
+│   ├── mongo_client.py             # Handles MongoDB interactions and analysis
+│   └── utils.py                    # Classes and logging setup
 ├── results/
-│   ├── top10.md                # Markdown report showing top 10 domains
-│   ├── top_10_domains.png      # Visualization of top 10 domains
+│   ├── top_10_domains.md           # Markdown report showing top 10 domains
+│   ├── top_10_domains.png          # Visualization of top 10 domains
 ├── tests/
-│   ├── tests.py                # Tests
+│   ├── test_scraper.py             # Tests for Telegram and Mongo connections
+│   ├── test_url.py                 # Tests for urls extraction
 ```
 
 
