@@ -34,9 +34,6 @@ class TelegramScraper:
         try:
             if message.text:
                 urls, domains = extract_urls_and_domains(message.text)
-                logging.info(f"Message: {message.text}")
-                logging.info(f"Extracted URLs: {urls}")
-                logging.info(f"Extracted Domains: {domains}")
 
                 message_data = TelegramMessage(
                     channel.title,
