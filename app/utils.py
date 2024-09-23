@@ -2,7 +2,6 @@ import logging
 from typing import List, Optional
 
 
-# optional use of pydantic for schema validation
 class TelegramMessage:
     """
     A class to represent a Telegram message, storing relevant attributes

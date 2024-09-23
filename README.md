@@ -1,7 +1,7 @@
 # Telegram Scraper with MongoDB Integration
 
 ## Overview
-This project is a Python-based scraper for extracting messages from Telegram channels and storing them in MongoDB. It processes messages to extract URLs, their respective domains, and performs an analysis to present the top 10 most mentioned domains. The project is built using the Telethon library for interacting with the Telegram API and uses MongoDB for persistent storage.
+This project is a Python-based scraper for extracting messages from Telegram channels and storing them in MongoDB. It processes messages to extract URLs, their respective domains, and performs an analysis to present the top 10 most mentioned domains. The project is built using the [Telethon](https://pypi.org/project/Telethon/) library for interacting with the Telegram API and uses MongoDB for persistent storage.
 
 ## Features
 - Telegram Channel Scraper: Extract messages from a Telegram channel.
@@ -110,7 +110,7 @@ telegram-scraper/
 
 ## MongoDB Schema
 Each message in MongoDB has the following structure:
-```json
+```
 {
     "channel_name": <string>,       # Name of the Telegram channel from which the message was scraped.
     "message_id": <int>,            # Unique Telegram message ID
@@ -134,6 +134,7 @@ Indexes are created on message_id,  channel_name and domains for faster querying
 Errors during the message processing or MongoDB operations are logged to **scraper.log** file. The logging configuration is set to INFO level, and every step of the process is logged for easier debugging and monitoring.
 
 
+## Schedulers
 
 ### Setting up scheduled execution on Windows
 
@@ -162,12 +163,17 @@ An alternative way to set up the Telegram scraper to run periodically is by usin
 6. **Choose an Action:** Select "Start a program" and click "Next."
 
 7. **Specify the Program/Script:**
-   - Click "Browse" to navigate to the Python executable (e.g., `python.exe`).
-   - In the "Add arguments (optional)" box, enter the path to the script, formatted as follows:
+    - Click "Browse" to navigate to the Python executable from virtual environment (e.g., `python.exe`).
+    - In the "Add arguments (optional)" box, enter the path to the script, formatted as follows:
    
-     ```
-     "C:\path\to\main.py --channel CHANNE_URL"
-     ```
+        ```
+        "main.py --channel CHANNE_URL"
+        ```
+    - In the "Starts in (optional)" box, enter the path to the project, formatted as follows:
+
+        ```
+        "C:\path\to\telegram-scraper"
+        ```
 
 8. **Finish the Task Creation:** Click "Next," review the settings, and then click "Finish" to create the task.
 

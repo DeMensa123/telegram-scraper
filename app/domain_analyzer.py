@@ -1,11 +1,10 @@
 import matplotlib.pyplot as plt
-from app.mongo_client import collection
 import re
 import tldextract
 from config import result_folder, result_md_file, result_png_file
 
 
-def extract_urls_and_domains(text):
+def extract_urls_and_domains(text: str) -> tuple:
     """
     Extract URLs and domains from the given text using regex.
 
@@ -15,21 +14,12 @@ def extract_urls_and_domains(text):
     Returns:
         tuple: A list of extracted URLs and a list of corresponding domains.
     """
-    # url_regex = re.compile(
-    #     r"(https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s\)\]\,\*\>\<\{\}\|\\\^?#]{2,}|"
-    #     r"www\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s\)\]\,\*\>\<\{\}\|\\\^?#]{2,}|"
-    #     r"https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9]+\.[^\s\)\]\,\*\>\<\{\}\|\\\^?#]{2,}|"
-    #     r"www\.[a-zA-Z0-9]+\.[^\s\)\]\,\*\>\<\{\}\|\\\^?#]{2,}|"
-    #     r"(?:[a-zA-Z0-9-]+\.)+[a-zA-Z]{2,6})",
-    #     re.IGNORECASE,
-    # )
 
     url_regex = re.compile(
-        r"(https?:\/\/(?:www\.)?[a-zA-Z0-9][a-zA-Z0-9-]*(?:\.[a-zA-Z0-9-]+)+[^\s\)\]\,\*\>\<\{\}\|\\\^?#]{2,}|"
-        r"www\.[a-zA-Z0-9][a-zA-Z0-9-]*(?:\.[a-zA-Z0-9-]+)+[^\s\)\]\,\*\>\<\{\}\|\\\^?#]{2,}|"
-        r"https?:\/\/(?:www\.)?[a-zA-Z0-9-]+(?:\.[a-zA-Z]{2,6})[^\s\)\]\,\*\>\<\{\}\|\\\^?#]{2,}|"
-        r"www\.[a-zA-Z0-9-]+(?:\.[a-zA-Z]{2,})[^\s\)\]\,\*\>\<\{\}\|\\\^?#]{2,}|"
-        r"(?:[a-zA-Z0-9-]+\.)+[a-zA-Z]{2,})",
+        r"\b((?:https?:\/\/)?(?:www\.)?"  # Optionally matches the protocol part (http:// or https://) and www.
+        r"(?!\-)(?!.*\-\-)(?:[a-zA-Z0-9-]+(?<!\-)\.)+[a-zA-Z]{2,3}"  # matches the domain name and the top level domain
+        r"(?:\/[^\/\s\"\>\<\|\\\@]*)*"  # optionally matches a path following the fomain
+        r"(?:[\?#][^\s]*)?)\b",  # optionally matches a query string
         re.IGNORECASE,
     )
 
@@ -39,7 +29,7 @@ def extract_urls_and_domains(text):
     return urls, domains
 
 
-def analyze_top_domains():
+def analyze_top_domains(collection):
     """
     Analyze the top 10 most mentioned domains from the MongoDB collection,
     save the results to a markdown file, and generate a bar chart.
